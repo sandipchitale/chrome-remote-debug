@@ -1,0 +1,49 @@
+[supervisord]
+nodaemon=true
+user=root
+
+[program:xvfb]
+command=/usr/bin/Xvfb :1 -screen 0 ${width}x${height}x24+32
+autorestart=true
+priority=100
+
+[program:chrome]
+environment=HOME="/home/chrome",DISPLAY=":1",USER="chrome",LANG="${lang}",DBUS_SESSION_BUS_ADDRESS="/dev/null"
+command=/opt/google/chrome/chrome --user-data-dir=/home/chrome
+                                  ${extra_chrome_args}
+                                  --lang=${lang}
+                                  --no-first-run
+                                  --no-sandbox
+                                  --remote-debugging-port=19333
+                                  --window-position=0,0
+                                  --window-size=${width},${height}
+                                  --force-device-scale-factor=1
+                                  --dbus-stub
+                                  --disable-gpu
+                                  --use-gl=angle
+                                  --mute-audio
+                                  --enable-logging=stderr
+                                  --log-level=0
+                                  --disable-translate
+                                  --disable-notifications
+                                  --disable-infobars
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+user=chrome
+autorestart=true
+priority=200
+
+[program:x11vnc]
+command=/usr/bin/x11vnc -display :1 -nopw -wait 5 -forever -shared
+autorestart=true
+priority=300
+
+[program:socat]
+command=/usr/bin/socat tcp-listen:9333,fork tcp:localhost:19333
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+priority=300
